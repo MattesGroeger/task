@@ -10,6 +10,8 @@
 		AD8DF4851BC71B2400E3B52A /* task.h in Headers */ = {isa = PBXBuildFile; fileRef = AD8DF4841BC71B2400E3B52A /* task.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AD8DF48C1BC71B2400E3B52A /* task.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8DF4811BC71B2400E3B52A /* task.framework */; settings = {ASSET_TAGS = (); }; };
 		AD8DF4911BC71B2500E3B52A /* taskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF4901BC71B2500E3B52A /* taskTests.swift */; };
+		AD8DF49C1BC7200500E3B52A /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF49B1BC7200500E3B52A /* Task.swift */; settings = {ASSET_TAGS = (); }; };
+		AD8DF49D1BC7200A00E3B52A /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF49B1BC7200500E3B52A /* Task.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,7 @@
 		AD8DF48B1BC71B2400E3B52A /* taskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = taskTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8DF4901BC71B2500E3B52A /* taskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = taskTests.swift; sourceTree = "<group>"; };
 		AD8DF4921BC71B2500E3B52A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AD8DF49B1BC7200500E3B52A /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +76,7 @@
 			children = (
 				AD8DF4841BC71B2400E3B52A /* task.h */,
 				AD8DF4861BC71B2400E3B52A /* Info.plist */,
+				AD8DF49B1BC7200500E3B52A /* Task.swift */,
 			);
 			path = task;
 			sourceTree = "<group>";
@@ -142,6 +146,7 @@
 		AD8DF4781BC71B2400E3B52A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Mattes Groeger";
 				TargetAttributes = {
@@ -193,6 +198,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD8DF49C1BC7200500E3B52A /* Task.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +206,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD8DF49D1BC7200A00E3B52A /* Task.swift in Sources */,
 				AD8DF4911BC71B2500E3B52A /* taskTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -307,6 +314,7 @@
 		AD8DF4961BC71B2500E3B52A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -317,12 +325,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "de.mattes-groeger.task";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		AD8DF4971BC71B2500E3B52A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
