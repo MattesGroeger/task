@@ -49,7 +49,7 @@ class taskTests: XCTestCase {
                 .addTask(DelayTask(0.1))
                 .addTask(PrintTask("sub 2")))
             .addTask(InlineAsyncTask { finish in
-                delay(0.1) {
+                doDelay(0.1) {
                     print("3")
                     finish()
                 }
@@ -67,11 +67,36 @@ class taskTests: XCTestCase {
     }
 }
 
-func delay(delay: Double, closure: () -> ()) {
+func doDelay(delay: Double, _ closure: () -> ()) {
     dispatch_after(
         dispatch_time(
             DISPATCH_TIME_NOW,
             Int64(delay * Double(NSEC_PER_SEC))
         ),
         dispatch_get_main_queue(), closure)
+}
+
+class PrintTask: Task {
+    private var message: String!
+
+    init(_ message: String) {
+        self.message = message
+    }
+
+    override func run() {
+        print(message)
+    }
+}
+
+class DelayTask: AsyncTask {
+
+    private var delay: Double!
+
+    init(_ delay: Double) {
+        self.delay = delay
+    }
+
+    override func run() {
+        doDelay(delay, complete)
+    }
 }

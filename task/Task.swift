@@ -104,33 +104,3 @@ public class InlineAsyncTask: AsyncTask {
         }
     }
 }
-
-public class PrintTask: Task {
-    private var message: String!
-
-    init(_ message: String) {
-        self.message = message
-    }
-
-    public override func run() {
-        print(message)
-    }
-}
-
-public class DelayTask: AsyncTask {
-
-    private var delay: Double!
-
-    init(_ delay: Double) {
-        self.delay = delay
-    }
-
-    public override func run() {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(self.delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), self.complete)
-    }
-}
