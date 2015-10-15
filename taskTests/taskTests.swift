@@ -56,8 +56,11 @@ class taskTests: XCTestCase {
             })
             .addTask(InlineTask {
                 print("4")
-                expectation.fulfill()
             })
+            .onComplete {
+                print("done")
+                expectation.fulfill()
+            }
             .run()
 
         self.waitForExpectationsWithTimeout(1.0, handler: nil)

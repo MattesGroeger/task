@@ -22,46 +22,45 @@
 
 import Foundation
 
-protocol Task {
-    func run()
-}
+public class Task {
+    public var userInfo: [String:AnyObject]?
 
-extension Task {
-    var data: AnyObject? { return [:] }
-}
-
-
-class AsyncTask: Task {
-    var onComplete: () -> () = {}
-
-    func run() {
+    public func run() {
         assert(false, "abstract, implement in sub class")
     }
 }
 
+public class AsyncTask: Task {
+    internal var complete: () -> () = {}
 
-//protocol CancellableTask: AsyncTask {
-//    func cancel()
-//}
+    public func onComplete(complete: () -> ()) -> Self {
+        self.complete = complete
+        return self
+    }
+}
+
+public protocol Cancellable {
+    func cancel()
+}
 
 
-class TaskGroup: AsyncTask {
+public class TaskGroup: AsyncTask {
 
     private var tasks: [Task] = []
 
-    func addTask(task: Task) -> Self {
+    public func addTask(task: Task) -> Self {
         tasks.append(task)
         return self
     }
 
-    override func run() {
+    public override func run() {
         processNextTask()
     }
 
     private func processNextTask() {
         if let task = tasks.first {
             if let asyncTask = task as? AsyncTask {
-                asyncTask.onComplete = {
+                asyncTask.onComplete {
                     self.tasks.removeFirst()
                     self.processNextTask()
                 }
@@ -72,13 +71,13 @@ class TaskGroup: AsyncTask {
                 processNextTask()
             }
         } else {
-            onComplete()
+            complete()
         }
     }
 }
 
 
-class InlineTask: Task {
+public class InlineTask: Task {
 
     private let callback: () -> ()
 
@@ -86,12 +85,12 @@ class InlineTask: Task {
         self.callback = closure
     }
 
-    func run() {
+    public override func run() {
         callback()
     }
 }
 
-class InlineAsyncTask: AsyncTask {
+public class InlineAsyncTask: AsyncTask {
 
     private let callback: (() -> ()) -> ()
 
@@ -99,26 +98,26 @@ class InlineAsyncTask: AsyncTask {
         self.callback = closure
     }
 
-    override func run() {
+    public override func run() {
         callback {
-            self.onComplete()
+            self.complete()
         }
     }
 }
 
-class PrintTask: Task {
+public class PrintTask: Task {
     private var message: String!
 
     init(_ message: String) {
         self.message = message
     }
 
-    func run() {
+    public override func run() {
         print(message)
     }
 }
 
-class DelayTask: AsyncTask {
+public class DelayTask: AsyncTask {
 
     private var delay: Double!
 
@@ -126,12 +125,12 @@ class DelayTask: AsyncTask {
         self.delay = delay
     }
 
-    override func run() {
+    public override func run() {
         dispatch_after(
             dispatch_time(
                 DISPATCH_TIME_NOW,
                 Int64(self.delay * Double(NSEC_PER_SEC))
             ),
-            dispatch_get_main_queue(), self.onComplete)
+            dispatch_get_main_queue(), self.complete)
     }
 }
