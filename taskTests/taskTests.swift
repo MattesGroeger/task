@@ -40,25 +40,23 @@ class taskTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
         let expectation = self.expectationWithDescription("async call")
 
-        TaskGroup()
-            .addTask(InlineTask { print("1") })
+        TaskGroup(userInfo: UserInfo(["init": true]))
+            .addTask(InlineTask { $0["foo"] = 1; print("1") })
             .addTask(DelayTask(0.3))
             .addTask(PrintTask("2"))
             .addTask(TaskGroup()
                 .addTask(PrintTask("sub 1"))
                 .addTask(DelayTask(0.1))
                 .addTask(PrintTask("sub 2")))
-            .addTask(InlineAsyncTask { finish in
+            .addTask(InlineAsyncTask { finish, _ in
                 doDelay(0.1) {
                     print("3")
                     finish()
                 }
             })
-            .addTask(InlineTask {
-                print("4")
-            })
+            .addTask(InlineTask { _ in print("4") })
             .onComplete {
-                print("done")
+                print("done: ", $0)
                 expectation.fulfill()
             }
             .run()
@@ -97,6 +95,9 @@ class DelayTask: AsyncTask {
     }
 
     override func run() {
-        doDelay(delay, complete)
+        userInfo["delay"] = delay
+        doDelay(delay) {
+            self.doComplete()
+        }
     }
 }

@@ -22,8 +22,33 @@
 
 import Foundation
 
+public class UserInfo: CustomStringConvertible {
+    private var data: [String:AnyObject] = [:]
+
+    convenience init() {
+        self.init([:])
+    }
+
+    init(_ data: [String:AnyObject]) {
+        self.data = data
+    }
+
+    public var description: String {
+        return "\(data)"
+    }
+
+    public subscript(key: String) -> AnyObject? {
+        get {
+            return data[key]
+        }
+        set(newValue) {
+            data[key] = newValue
+        }
+    }
+}
+
 public class Task {
-    public var userInfo: [String:AnyObject]?
+    public var userInfo: UserInfo = UserInfo()
 
     public func run() {
         assert(false, "abstract, implement in sub class")
@@ -31,11 +56,15 @@ public class Task {
 }
 
 public class AsyncTask: Task {
-    internal var complete: () -> () = {}
+    private var complete: (UserInfo -> ())!
 
-    public func onComplete(complete: () -> ()) -> Self {
+    public func onComplete(complete: (UserInfo) -> ()) -> Self {
         self.complete = complete
         return self
+    }
+
+    public func doComplete() {
+        complete(userInfo)
     }
 }
 
@@ -48,6 +77,15 @@ public class TaskGroup: AsyncTask {
 
     private var tasks: [Task] = []
 
+    convenience override init() {
+        self.init(userInfo: UserInfo())
+    }
+
+    init(userInfo: UserInfo) {
+        super.init()
+        self.userInfo = userInfo
+    }
+
     public func addTask(task: Task) -> Self {
         tasks.append(task)
         return self
@@ -59,8 +97,9 @@ public class TaskGroup: AsyncTask {
 
     private func processNextTask() {
         if let task = tasks.first {
+            task.userInfo = userInfo
             if let asyncTask = task as? AsyncTask {
-                asyncTask.onComplete {
+                asyncTask.onComplete { _ in
                     self.tasks.removeFirst()
                     self.processNextTask()
                 }
@@ -71,36 +110,34 @@ public class TaskGroup: AsyncTask {
                 processNextTask()
             }
         } else {
-            complete()
+            doComplete()
         }
     }
 }
 
 
 public class InlineTask: Task {
+    private let callback: (UserInfo) -> ()
 
-    private let callback: () -> ()
-
-    init (closure: () -> ()) {
+    init (closure: (UserInfo) -> ()) {
         self.callback = closure
     }
 
     public override func run() {
-        callback()
+        callback(userInfo)
     }
 }
 
 public class InlineAsyncTask: AsyncTask {
+    private let callback: (() -> (), UserInfo) -> ()
 
-    private let callback: (() -> ()) -> ()
-
-    init(closure: (() -> ()) -> ()) {
+    init(closure: (() -> (), UserInfo) -> ()) {
         self.callback = closure
     }
 
     public override func run() {
-        callback {
-            self.complete()
-        }
+        callback({
+            self.doComplete()
+        }, userInfo)
     }
 }
