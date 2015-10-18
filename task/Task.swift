@@ -124,6 +124,49 @@ public class TaskGroup: AsyncTask {
 }
 
 
+public class ConcurrentTaskGroup: AsyncTask {
+
+    private var tasks: [Task] = []
+    private var runningTasks: [Task] = []
+
+    init(userInfo: UserInfo = UserInfo()) {
+        super.init()
+        self.userInfo = userInfo
+    }
+
+    public func addTask(task: Task) -> Self {
+        tasks.append(task)
+        return self
+    }
+
+    public override func run() {
+        runningTasks += tasks
+        for task in tasks {
+            task.userInfo = userInfo
+            if let asyncTask = task as? AsyncTask {
+                asyncTask.onComplete { _ in
+                    self.finishTask(task)
+                }
+                asyncTask.run()
+            } else {
+                task.run()
+                finishTask(task)
+            }
+        }
+        tasks = []
+    }
+
+    private func finishTask(task: Task) {
+        if let index = runningTasks.indexOf({$0 === task}) {
+            runningTasks.removeAtIndex(index)
+        }
+        if runningTasks.count == 0 {
+            doComplete()
+        }
+    }
+}
+
+
 public class InlineTask: Task {
     private let callback: (UserInfo) -> ()
 
@@ -147,5 +190,17 @@ public class InlineAsyncTask: AsyncTask {
         callback({
             self.doComplete()
         }, userInfo)
+    }
+}
+
+public class PrintTask: Task {
+    private var message: String!
+
+    init(_ message: String) {
+        self.message = message
+    }
+
+    public override func run() {
+        print(message)
     }
 }

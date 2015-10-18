@@ -49,6 +49,52 @@ class UserInfoSpec: QuickSpec {
 	}
 }
 
+class TaskSpec: QuickSpec {
+	override func spec() {
+		describe("Task") {
+			it("should execute all tasks in order") {
+				var order:[Int] = []
+				TaskGroup()
+					.addTask(InlineTask() { _ in
+						order += [1]
+					})
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							order += [2]
+							complete()
+						}
+					})
+					.addTask(ConcurrentTaskGroup()
+						.addTask(InlineAsyncTask() { complete, _ in
+							doDelay(0.1) {
+								order += [4]
+								complete()
+							}
+						})
+						.addTask(InlineTask() { _ in
+							order += [3]
+						})
+					)
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							order += [5]
+							complete()
+						}
+					})
+					.addTask(InlineTask() { _ in
+						order += [6]
+					})
+					.onComplete { _ in
+						order += [7]
+					}
+					.run()
+
+				expect(order).toEventually(equal([1,2,3,4,5,6,7]), timeout: 0.5)
+			}
+		}
+	}
+}
+
 class TaskGroupSpec: QuickSpec {
 	override func spec() {
 		describe("TaskGroup") {
@@ -142,7 +188,7 @@ class TaskGroupSpec: QuickSpec {
 							}
 						})
 						.onComplete { userInfo in
-							str = userInfo["foo"] as! String
+							str = userInfo["foo"] as? String
 						}
 						.run()
 					expect(str).toEventually(equal("bar"))
@@ -161,10 +207,188 @@ class TaskGroupSpec: QuickSpec {
 							userInfo["foo"] = "baz"
 						})
 						.onComplete { userInfo in
-							str = userInfo["foo"] as! String
+							str = userInfo["foo"] as? String
 						}
 						.run()
 					expect(str).toEventually(equal("baz"))
+				}
+
+				it("should pass UserInfo to child TaskGroup") {
+					let userInfo = UserInfo()
+					TaskGroup(userInfo: userInfo)
+						.addTask(
+							TaskGroup()
+								.addTask(InlineAsyncTask() { complete, userInfo in
+									doDelay(0.1) {
+										userInfo["foo"] = "bar"
+										complete()
+									}
+								})
+						).run()
+					expect(userInfo["foo"] as? String).toEventually(equal("bar"))
+				}
+			}
+		}
+	}
+}
+
+class ConcurrentTaskGroupSpec: QuickSpec {
+	override func spec() {
+		describe("ConcurrentTaskGroup") {
+			it("should run all tasks in parallel") {
+				var complete:Bool?
+				var runCount = 0
+				ConcurrentTaskGroup()
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.onComplete { _ in
+						complete = true
+					}
+					.run()
+
+				expect(complete).toEventually(beTrue(), timeout: 0.2)
+				expect(runCount).toEventually(equal(4), timeout: 0.2)
+			}
+
+			it("should not start new tasks without run call") {
+				var complete:Bool?
+				var runCount = 0
+				let group = ConcurrentTaskGroup()
+
+				group.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.onComplete { _ in
+						complete = true
+					}
+					.run()
+
+				group.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+
+				expect(complete).toEventually(beTrue(), timeout: 0.2)
+				expect(runCount).toEventually(equal(1), timeout: 0.2)
+			}
+
+			it("should allow adding and running while already running") {
+				var complete:Bool?
+				var runCount = 0
+				let group = ConcurrentTaskGroup()
+
+				group.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.onComplete { _ in
+						complete = true
+					}
+					.run()
+
+				group.addTask(InlineAsyncTask() { complete, _ in
+						doDelay(0.1) {
+							runCount += 1
+							complete()
+						}
+					})
+					.run()
+
+				expect(complete).toEventually(beTrue(), timeout: 0.2)
+				expect(runCount).toEventually(equal(2), timeout: 0.2)
+			}
+
+			context("with userInfo") {
+				it("should create initialy") {
+					expect(ConcurrentTaskGroup().userInfo).toNot(beNil())
+				}
+
+				it("should pass through") {
+					let userInfo1 = UserInfo()
+					var userInfo2:UserInfo?
+					ConcurrentTaskGroup(userInfo: userInfo1).addTask(InlineTask() { userInfo in
+						userInfo2 = userInfo
+					}).run()
+					expect(userInfo2).toEventually(beIdenticalTo(userInfo1))
+				}
+
+				it("should allow adding to UserInfo") {
+					var str:String?
+					ConcurrentTaskGroup()
+						.addTask(InlineAsyncTask() { complete, userInfo in
+							doDelay(0.1) {
+								userInfo["foo"] = "bar"
+								complete()
+							}
+						})
+						.onComplete { userInfo in
+							str = userInfo["foo"] as? String
+						}
+						.run()
+					expect(str).toEventually(equal("bar"))
+				}
+
+				it("should allow changing UserInfo") {
+					var str:String?
+					ConcurrentTaskGroup()
+						.addTask(InlineAsyncTask() { complete, userInfo in
+							doDelay(0.1) {
+								userInfo["foo"] = "baz" // executed 2nd
+								complete()
+							}
+						})
+						.addTask(InlineTask() { userInfo in
+							userInfo["foo"] = "bar"
+						})
+						.onComplete { userInfo in
+							str = userInfo["foo"] as? String
+						}
+						.run()
+					expect(str).toEventually(equal("baz"))
+				}
+
+				it("should pass UserInfo to child TaskGroup") {
+					let userInfo = UserInfo()
+					ConcurrentTaskGroup(userInfo: userInfo)
+						.addTask(
+							ConcurrentTaskGroup()
+								.addTask(InlineAsyncTask() { complete, userInfo in
+									doDelay(0.1) {
+										userInfo["foo"] = "bar"
+										complete()
+									}
+								})
+						).run()
+					expect(userInfo["foo"] as? String).toEventually(equal("bar"))
 				}
 			}
 		}

@@ -44,7 +44,7 @@ class taskTests: XCTestCase {
             .addTask(InlineTask { $0["foo"] = 1; print("1") })
             .addTask(DelayTask(0.3))
             .addTask(PrintTask("2"))
-            .addTask(TaskGroup()
+            .addTask(ConcurrentTaskGroup()
                 .addTask(PrintTask("sub 1"))
                 .addTask(DelayTask(0.1))
                 .addTask(PrintTask("sub 2")))
@@ -62,17 +62,5 @@ class taskTests: XCTestCase {
             .run()
 
         self.waitForExpectationsWithTimeout(1.0, handler: nil)
-    }
-}
-
-class PrintTask: Task {
-    private var message: String!
-
-    init(_ message: String) {
-        self.message = message
-    }
-
-    override func run() {
-        print(message)
     }
 }
