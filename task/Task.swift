@@ -51,7 +51,7 @@ public class Task {
     public var userInfo: UserInfo = UserInfo()
 
     public func run() {
-        assert(false, "abstract, implement in sub class")
+        assert(false, "abstract, implement in subclass")
     }
 }
 

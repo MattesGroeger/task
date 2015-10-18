@@ -24,9 +24,34 @@ import Foundation
 import Nimble
 import Quick
 
+class UserInfoSpec: QuickSpec {
+	override func spec() {
+		describe("UserInfo") {
+			it("should keep data when passed through") {
+				var userInfo2: UserInfo?
+				let info = UserInfo(["foo": "bar"])
+
+				func inlineFunc(userInfo: UserInfo) -> () {
+					userInfo2 = userInfo
+				}
+
+				inlineFunc(info)
+
+				expect(userInfo2).toEventually(beIdenticalTo(info))
+			}
+
+			it("should describe contents") {
+				let info = UserInfo(["foo": "bar"])
+
+				expect(info.description).to(equal("[\"foo\": bar]"))
+			}
+		}
+	}
+}
+
 class TaskGroupSpec: QuickSpec {
 	override func spec() {
-		describe("The TaskGroup") {
+		describe("TaskGroup") {
 			it("should run all tasks") {
 				var executed: [Int] = []
 
