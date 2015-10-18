@@ -65,15 +65,6 @@ class taskTests: XCTestCase {
     }
 }
 
-func doDelay(delay: Double, _ closure: () -> ()) {
-    dispatch_after(
-        dispatch_time(
-            DISPATCH_TIME_NOW,
-            Int64(delay * Double(NSEC_PER_SEC))
-        ),
-        dispatch_get_main_queue(), closure)
-}
-
 class PrintTask: Task {
     private var message: String!
 
@@ -83,21 +74,5 @@ class PrintTask: Task {
 
     override func run() {
         print(message)
-    }
-}
-
-class DelayTask: AsyncTask {
-
-    private var delay: Double!
-
-    init(_ delay: Double) {
-        self.delay = delay
-    }
-
-    override func run() {
-        userInfo["delay"] = delay
-        doDelay(delay) {
-            self.doComplete()
-        }
     }
 }

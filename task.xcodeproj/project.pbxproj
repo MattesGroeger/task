@@ -12,6 +12,9 @@
 		AD8DF4911BC71B2500E3B52A /* taskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF4901BC71B2500E3B52A /* taskTests.swift */; };
 		AD8DF49C1BC7200500E3B52A /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF49B1BC7200500E3B52A /* Task.swift */; settings = {ASSET_TAGS = (); }; };
 		AD8DF49D1BC7200A00E3B52A /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF49B1BC7200500E3B52A /* Task.swift */; settings = {ASSET_TAGS = (); }; };
+		AD8DF4A01BD24C6600E3B52A /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8DF49E1BD24C6600E3B52A /* Nimble.framework */; };
+		AD8DF4A11BD24C6600E3B52A /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8DF49F1BD24C6600E3B52A /* Quick.framework */; };
+		AD8DF4A41BD24D1200E3B52A /* TaskSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DF4A31BD24D1200E3B52A /* TaskSpec.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +35,9 @@
 		AD8DF4901BC71B2500E3B52A /* taskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = taskTests.swift; sourceTree = "<group>"; };
 		AD8DF4921BC71B2500E3B52A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD8DF49B1BC7200500E3B52A /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		AD8DF49E1BD24C6600E3B52A /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
+		AD8DF49F1BD24C6600E3B52A /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
+		AD8DF4A31BD24D1200E3B52A /* TaskSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +53,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8DF48C1BC71B2400E3B52A /* task.framework in Frameworks */,
+				AD8DF4A01BD24C6600E3B52A /* Nimble.framework in Frameworks */,
+				AD8DF4A11BD24C6600E3B52A /* Quick.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +64,8 @@
 		AD8DF4771BC71B2400E3B52A = {
 			isa = PBXGroup;
 			children = (
+				AD8DF49E1BD24C6600E3B52A /* Nimble.framework */,
+				AD8DF49F1BD24C6600E3B52A /* Quick.framework */,
 				AD8DF4831BC71B2400E3B52A /* task */,
 				AD8DF48F1BC71B2500E3B52A /* taskTests */,
 				AD8DF4821BC71B2400E3B52A /* Products */,
@@ -85,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				AD8DF4901BC71B2500E3B52A /* taskTests.swift */,
+				AD8DF4A31BD24D1200E3B52A /* TaskSpec.swift */,
 				AD8DF4921BC71B2500E3B52A /* Info.plist */,
 			);
 			path = taskTests;
@@ -129,6 +140,7 @@
 				AD8DF4871BC71B2400E3B52A /* Sources */,
 				AD8DF4881BC71B2400E3B52A /* Frameworks */,
 				AD8DF4891BC71B2400E3B52A /* Resources */,
+				AD8DF4A21BD24C6B00E3B52A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -193,6 +205,24 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AD8DF4A21BD24C6B00E3B52A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/Quick.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Nimble.framework",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		AD8DF47C1BC71B2400E3B52A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -207,6 +237,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8DF49D1BC7200A00E3B52A /* Task.swift in Sources */,
+				AD8DF4A41BD24D1200E3B52A /* TaskSpec.swift in Sources */,
 				AD8DF4911BC71B2500E3B52A /* taskTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -349,6 +380,10 @@
 		AD8DF4991BC71B2500E3B52A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = taskTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.mattes-groeger.taskTests";
@@ -359,6 +394,10 @@
 		AD8DF49A1BC71B2500E3B52A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = taskTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.mattes-groeger.taskTests";

@@ -56,7 +56,7 @@ public class Task {
 }
 
 public class AsyncTask: Task {
-    private var complete: (UserInfo -> ())!
+    private var complete: (UserInfo -> ())?
 
     public func onComplete(complete: (UserInfo) -> ()) -> Self {
         self.complete = complete
@@ -64,7 +64,9 @@ public class AsyncTask: Task {
     }
 
     public func doComplete() {
-        complete(userInfo)
+        if let complete = complete {
+            complete(userInfo)
+        }
     }
 }
 
@@ -76,27 +78,32 @@ public protocol Cancellable {
 public class TaskGroup: AsyncTask {
 
     private var tasks: [Task] = []
+    private var autoStart: Bool = true
+    private var running: Bool = false
 
-    convenience override init() {
-        self.init(userInfo: UserInfo())
-    }
-
-    init(userInfo: UserInfo) {
+    init(userInfo: UserInfo = UserInfo(), autoStart: Bool = false) {
         super.init()
         self.userInfo = userInfo
+        self.autoStart = autoStart
     }
 
     public func addTask(task: Task) -> Self {
         tasks.append(task)
+        if (autoStart && !running) {
+            processNextTask()
+        }
         return self
     }
 
     public override func run() {
-        processNextTask()
+        if !running {
+            processNextTask()
+        }
     }
 
     private func processNextTask() {
         if let task = tasks.first {
+            running = true
             task.userInfo = userInfo
             if let asyncTask = task as? AsyncTask {
                 asyncTask.onComplete { _ in
@@ -110,6 +117,7 @@ public class TaskGroup: AsyncTask {
                 processNextTask()
             }
         } else {
+            running = false
             doComplete()
         }
     }
