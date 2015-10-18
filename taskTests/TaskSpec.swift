@@ -55,33 +55,33 @@ class TaskSpec: QuickSpec {
 			it("should execute all tasks in order") {
 				var order:[Int] = []
 				TaskGroup()
-					.addTask(InlineTask() { _ in
+					.addTask(InlineTask { _ in
 						order += [1]
 					})
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							order += [2]
 							complete()
 						}
 					})
 					.addTask(ConcurrentTaskGroup()
-						.addTask(InlineAsyncTask() { complete, _ in
+						.addTask(InlineAsyncTask { complete, _ in
 							doDelay(0.1) {
 								order += [4]
 								complete()
 							}
 						})
-						.addTask(InlineTask() { _ in
+						.addTask(InlineTask { _ in
 							order += [3]
 						})
 					)
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							order += [5]
 							complete()
 						}
 					})
-					.addTask(InlineTask() { _ in
+					.addTask(InlineTask { _ in
 						order += [6]
 					})
 					.onComplete { _ in
@@ -102,10 +102,10 @@ class TaskGroupSpec: QuickSpec {
 				var executed: [Int] = []
 
 				TaskGroup()
-					.addTask(InlineTask() { _ in
+					.addTask(InlineTask { _ in
 						executed.append(1)
 					})
-					.addTask(InlineTask() { _ in
+					.addTask(InlineTask { _ in
 						executed.append(2)
 					})
 					.addTask(DelayTask())
@@ -120,7 +120,7 @@ class TaskGroupSpec: QuickSpec {
 			it("should not fail when starting a running task group") {
 				var doneCounter = 0
 
-				let group = TaskGroup().addTask(InlineTask() { _ in
+				let group = TaskGroup().addTask(InlineTask { _ in
 					doneCounter += 1
 				})
 
@@ -136,7 +136,7 @@ class TaskGroupSpec: QuickSpec {
 					var executed2: Bool?
 
 					TaskGroup(autoStart: true)
-						.addTask(InlineAsyncTask() { complete, _ in
+						.addTask(InlineAsyncTask { complete, _ in
 							doDelay(0.1) {
 								executed1 = true
 								complete()
@@ -172,7 +172,7 @@ class TaskGroupSpec: QuickSpec {
 				it("should pass through") {
 					let userInfo1 = UserInfo()
 					var userInfo2:UserInfo?
-					TaskGroup(userInfo: userInfo1).addTask(InlineTask() { userInfo in
+					TaskGroup(userInfo: userInfo1).addTask(InlineTask { userInfo in
 						userInfo2 = userInfo
 					}).run()
 					expect(userInfo2).toEventually(beIdenticalTo(userInfo1))
@@ -181,7 +181,7 @@ class TaskGroupSpec: QuickSpec {
 				it("should allow adding to UserInfo") {
 					var str:String?
 					TaskGroup()
-						.addTask(InlineAsyncTask() { complete, userInfo in
+						.addTask(InlineAsyncTask { complete, userInfo in
 							doDelay(0.1) {
 								userInfo["foo"] = "bar"
 								complete()
@@ -197,13 +197,13 @@ class TaskGroupSpec: QuickSpec {
 				it("should allow changing UserInfo") {
 					var str:String?
 					TaskGroup()
-						.addTask(InlineAsyncTask() { complete, userInfo in
+						.addTask(InlineAsyncTask { complete, userInfo in
 							doDelay(0.1) {
 								userInfo["foo"] = "bar"
 								complete()
 							}
 						})
-						.addTask(InlineTask() { userInfo in
+						.addTask(InlineTask { userInfo in
 							userInfo["foo"] = "baz"
 						})
 						.onComplete { userInfo in
@@ -218,7 +218,7 @@ class TaskGroupSpec: QuickSpec {
 					TaskGroup(userInfo: userInfo)
 						.addTask(
 							TaskGroup()
-								.addTask(InlineAsyncTask() { complete, userInfo in
+								.addTask(InlineAsyncTask { complete, userInfo in
 									doDelay(0.1) {
 										userInfo["foo"] = "bar"
 										complete()
@@ -239,25 +239,25 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				var complete:Bool?
 				var runCount = 0
 				ConcurrentTaskGroup()
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
 						}
 					})
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
 						}
 					})
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
 						}
 					})
-					.addTask(InlineAsyncTask() { complete, _ in
+					.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
@@ -277,7 +277,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				var runCount = 0
 				let group = ConcurrentTaskGroup()
 
-				group.addTask(InlineAsyncTask() { complete, _ in
+				group.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
@@ -288,7 +288,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 					}
 					.run()
 
-				group.addTask(InlineAsyncTask() { complete, _ in
+				group.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
@@ -304,7 +304,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				var runCount = 0
 				let group = ConcurrentTaskGroup()
 
-				group.addTask(InlineAsyncTask() { complete, _ in
+				group.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
@@ -315,7 +315,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 					}
 					.run()
 
-				group.addTask(InlineAsyncTask() { complete, _ in
+				group.addTask(InlineAsyncTask { complete, _ in
 						doDelay(0.1) {
 							runCount += 1
 							complete()
@@ -335,7 +335,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				it("should pass through") {
 					let userInfo1 = UserInfo()
 					var userInfo2:UserInfo?
-					ConcurrentTaskGroup(userInfo: userInfo1).addTask(InlineTask() { userInfo in
+					ConcurrentTaskGroup(userInfo: userInfo1).addTask(InlineTask { userInfo in
 						userInfo2 = userInfo
 					}).run()
 					expect(userInfo2).toEventually(beIdenticalTo(userInfo1))
@@ -344,7 +344,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				it("should allow adding to UserInfo") {
 					var str:String?
 					ConcurrentTaskGroup()
-						.addTask(InlineAsyncTask() { complete, userInfo in
+						.addTask(InlineAsyncTask { complete, userInfo in
 							doDelay(0.1) {
 								userInfo["foo"] = "bar"
 								complete()
@@ -360,13 +360,13 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 				it("should allow changing UserInfo") {
 					var str:String?
 					ConcurrentTaskGroup()
-						.addTask(InlineAsyncTask() { complete, userInfo in
+						.addTask(InlineAsyncTask { complete, userInfo in
 							doDelay(0.1) {
 								userInfo["foo"] = "baz" // executed 2nd
 								complete()
 							}
 						})
-						.addTask(InlineTask() { userInfo in
+						.addTask(InlineTask { userInfo in
 							userInfo["foo"] = "bar"
 						})
 						.onComplete { userInfo in
@@ -381,7 +381,7 @@ class ConcurrentTaskGroupSpec: QuickSpec {
 					ConcurrentTaskGroup(userInfo: userInfo)
 						.addTask(
 							ConcurrentTaskGroup()
-								.addTask(InlineAsyncTask() { complete, userInfo in
+								.addTask(InlineAsyncTask { complete, userInfo in
 									doDelay(0.1) {
 										userInfo["foo"] = "bar"
 										complete()

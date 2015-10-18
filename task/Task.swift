@@ -58,7 +58,7 @@ public class Task {
 public class AsyncTask: Task {
     private var complete: (UserInfo -> ())?
 
-    public func onComplete(complete: (UserInfo) -> ()) -> Self {
+    public func onComplete(complete: UserInfo -> ()) -> Self {
         self.complete = complete
         return self
     }
@@ -168,9 +168,9 @@ public class ConcurrentTaskGroup: AsyncTask {
 
 
 public class InlineTask: Task {
-    private let callback: (UserInfo) -> ()
+    private let callback: UserInfo -> ()
 
-    init (closure: (UserInfo) -> ()) {
+    init (closure: UserInfo -> ()) {
         self.callback = closure
     }
 
